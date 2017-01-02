@@ -9,6 +9,7 @@ const BEND = 'e'
 const BREC = "r"
 const BSEP = ':'
 
+proc parse(data: string, pos: int): (int, JsonNode)
 
 proc parseDict(data: string, pos: int): (int, JsonNode) =
   var res = newJObject()
@@ -33,15 +34,6 @@ proc parseDict(data: string, pos: int): (int, JsonNode) =
         echo("Key is: " & key)
         tmp = ""
         isKey = false
-        if key.len == 1 and key == BREC:
-          echo("Recursive")
-          new_pos += ln + 1
-          let (pp, value) = parseDict(data, new_pos)
-          new_pos = pp
-          echo("Nested Table: " & $value)
-          res[key] = value
-          isKey = true
-          continue
         echo("Key: " & key & " Len: " & $ln)
       else:
         let value = data[new_pos..new_pos+ln-1]
@@ -54,15 +46,30 @@ proc parseDict(data: string, pos: int): (int, JsonNode) =
     elif c == BEND:
       new_pos += 1
       break
+    elif not (c in Digits):
+      echo("Recursive. C is " & c & " Send: " & data[new_pos..data.len])
+      let (pp, value) = parse(data, new_pos)
+      new_pos = pp
+      echo("Nested Table: " & $value)
+      res[key] = value
+      isKey = true
+      continue
     else:
       tmp &= c
     new_pos += 1
   (new_pos, res)
 
+proc parse(data: string, pos: int): (int, JsonNode) =
+  case data[pos]
+  of 'd':
+    result = parseDict(data, pos+1)
+  else:
+    raise newException(ValueError, "Wrong type: " & data[pos])
+
 proc parse*(data: string): JsonNode =
   echo("String: " & data)
   assert data[0] == BDICT
-  let (pos, result) = parseDict(data, 1)
+  let (pos, result) = parse(data, 0)
   assert pos == data.len, "Invalid string: " & data[pos..data.len] & "\nFull: " & data
   echo("Result pos: ", pos, " Total len: ", data.len)
   return result
