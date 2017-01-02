@@ -3,7 +3,7 @@
 ## "dht.transmissionbt.com", 6881
 
 import asyncnet, asyncdispatch, nativesockets
-import tables
+import json
 import async_udp, log, krpc
 
 
@@ -17,10 +17,10 @@ proc serve() {.async.} =
   debug("Sock fd: " & $sock.isClosed)
   try:
     await sock.sendTo("router.bittorrent.com", 6881, ping)
-    let resp = await sock.recvFrom(65536)
+    var resp = await sock.recvFrom(65536)
     info("Resp: ", parse(resp.data))
   except:
-    error("When sendto got exception")
+    error("When sendto got exception: ", getCurrentExceptionMsg())
 
 
 asyncCheck serve()
