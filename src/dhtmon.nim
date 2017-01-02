@@ -16,7 +16,7 @@ proc serve() {.async.} =
                             protocol=IPPROTO_UDP, buffered=false)
   debug("Sock fd: " & $sock.isClosed)
   try:
-    await sock.sendTo("router.bittorrent.com", (Port) 6881, ping)
+    await sock.sendTo("router.bittorrent.com", 6881, ping)
     let resp = await sock.recvFrom(65536)
     info("Resp: ", parse(resp.data))
   except:

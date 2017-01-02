@@ -4,10 +4,10 @@ import asyncnet, asyncdispatch, nativesockets, os, net
 type RecvFromResult = tuple[data: string, address: string, port: Port]
 
 
-proc sendTo*(sock: AsyncSocket, address: string, port: Port, data: string):
+proc sendTo*(sock: AsyncSocket, address: string, port: Port|int, data: string):
            Future[void] {.raises: [Exception].} =
   try:
-    let it = getAddrInfo(address, port, AF_INET)
+    let it = getAddrInfo(address, (Port) port, AF_INET)
     result = sock.getFd.AsyncFD.sendTo(cstring(data), data.len.cint, it.ai_addr,
                                        it.ai_addrlen.SockLen)
   except:
