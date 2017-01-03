@@ -1,5 +1,5 @@
 import json, parseutils, strutils, posix
-import log
+import log, converters
 
 
 const BDICT = 'd'
@@ -66,22 +66,10 @@ proc parse(data: string, pos: int): (int, JsonNode) =
     raise newException(ValueError, "Wrong type: " & data[pos])
 
 
-
-proc hostParse*(s: string): cstring =
-  let v = cast[ptr uint](s.cstring)[]
-  debug("V: ", $v)
-  let a = cast[InAddr](v)
-  result = inet_ntoa(a)
-
 proc enhance(res: JsonNode): JsonNode =
   result = res
   if "ip" in res:
-    var old_ip = res["ip"].str
-    let port = cast[ptr cushort](old_ip[4..6].cstring)[]
-    let ip = hostParse(old_ip[0..4])
-    echo("VIP: ", ip)
-
-    res["ip"] = newJString($ip & ':' & $port)
+    res["ip"].str = res["ip"].str.ipHost
 
 proc parse*(data: string): JsonNode =
   echo("String: " & data)

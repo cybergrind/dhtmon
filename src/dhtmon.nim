@@ -26,11 +26,7 @@ let hosts = [
 ]
 
 proc serve() {.async.} =
-  let i = "\x187\x18{"
-  let ip = hostParse(i)
-  debug("Ip: ", ip, " X: ", i.cstring, i)
-  assert ip == "24.55.24.123".cstring
-  info("init : \x187\x18{")
+  info("Init")
   var sock = newAsyncSocket(domain=AF_INET, sockType=SOCK_DGRAM,
                             protocol=IPPROTO_UDP, buffered=false)
   debug("Sock fd: " & $sock.isClosed)
